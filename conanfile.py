@@ -6,7 +6,7 @@ from conan.tools.scm import Git
 from conan.tools.files import copy
 import os
 
-class StarterConanRecipe(ConanFile):
+class ModernRendererOpenGL(ConanFile):
     name = "example"
     version = "1.0"
     settings = "os", "compiler", "build_type", "arch"
@@ -21,12 +21,15 @@ class StarterConanRecipe(ConanFile):
 
     # Putting all of your packages here
     def requirements(self):
-        self.requires("glfw/3.4", transitive_headers=True)
+        self.requires("glfw/3.4")
         self.requires("spdlog/1.15.1")
-        self.requires("glm/1.0.1", transitive_headers=True)
-        self.requires("box2d/2.4.1", transitive_headers=True)
-        self.requires("opengl/system", transitive_headers=True)
+        self.requires("glm/1.0.1")
+        self.requires("box2d/2.4.1")
+        self.requires("opengl/system")
         self.requires("imguidocking/2.0")
+        self.requires("glad/0.1.36")
+        self.requires("flecs/4.0.4")
+        self.requires("stb/cci.20230920")
 
     def build(self):
         cmake = CMake(self)
