@@ -12,6 +12,7 @@ build_application(
     src/core/event.cpp
     src/core/image.cpp
     src/core/texture.cpp
+    src/core/obj_loader.cpp
 
     PACKAGES
     glfw3
@@ -19,6 +20,7 @@ build_application(
     glad
     flecs
     stb
+    tinyobjloader
 
     LINK_PACKAGES
     glfw
@@ -26,6 +28,7 @@ build_application(
     glad::glad
     flecs::flecs_static
     stb::stb
+    tinyobjloader::tinyobjloader
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})

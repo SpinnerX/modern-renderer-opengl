@@ -13,6 +13,9 @@ public:
 
     [[nodiscard]] uint32_t id() const { return m_id; }
 
+    [[nodiscard]] uint32_t size() const { return m_indices_size; }
+
 private:
     uint32_t m_id=-1;
+    uint32_t m_indices_size=0;
 };

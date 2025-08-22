@@ -29,7 +29,7 @@ void texture::bind(uint32_t p_index) {
     glActiveTexture(GL_TEXTURE0 + p_index);
     glBindTexture(GL_TEXTURE_2D, m_texture_id);
 }
-    
+
 void texture::unbind() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -81,12 +81,13 @@ void texture::invalidate(const std::filesystem::path& p_path, bool p_gamma_enabl
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
-    else
-    {
+    else{
         // std::cout << "Failed to load texture" << std::endl;
         std::println("Failed to load texture!!\n");
     }
     stbi_image_free(data);
+
+    m_texture_loaded = true;
 }
 
 void texture::invalidate(const std::filesystem::path& p_path, texture_spec p_specification) {}

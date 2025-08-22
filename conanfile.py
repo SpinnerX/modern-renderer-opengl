@@ -30,6 +30,7 @@ class ModernRendererOpenGL(ConanFile):
         self.requires("glad/0.1.36")
         self.requires("flecs/4.0.4")
         self.requires("stb/cci.20230920")
+        self.requires("tinyobjloader/2.0.0-rc10")
 
     def build(self):
         cmake = CMake(self)

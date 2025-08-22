@@ -9,10 +9,16 @@
 struct vertex {
     static constexpr uint32_t max_bone_influence=4;
     glm::vec3 position;
+    glm::vec3 color;
     glm::vec3 normal;
     glm::vec2 uv;
     glm::vec3 tangent;
     glm::vec3 bit_tangent;
+
+    bool operator==(const vertex& other) const {
+        return position == other.position and color == other.color and
+                uv == other.uv and normal == other.normal;
+    }
 };
 
 enum class data_type : uint8_t {

@@ -26,11 +26,11 @@ void vertex_buffer::unbind() {
 void vertex_buffer::write(const std::span<float>& p_vertices) {
     bind();
     glBufferData(GL_ARRAY_BUFFER, (uint32_t)p_vertices.size_bytes(), p_vertices.data(), GL_STATIC_DRAW);
-    unbind();
+    // unbind();
 }
 
 void vertex_buffer::write(const std::span<vertex>& p_vertices) {
     bind();
     glBufferData(GL_ARRAY_BUFFER, (uint32_t)p_vertices.size_bytes(), p_vertices.data(), GL_STATIC_DRAW);
-    unbind();
+    // unbind();
 }
