@@ -1,5 +1,6 @@
 #pragma once
 #include <core/keys.hpp>
+#include <core/mouse_codes.hpp>
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 
