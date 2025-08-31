@@ -10,6 +10,10 @@
 #include <core/event.hpp>
 #include <core/vertex_array.hpp>
 #include <core/texture.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <core/test_camera.hpp>
 using namespace std;
 
 
@@ -44,9 +48,13 @@ int main(){
 
     // 1. Setting up hardcode shader as a string (this would be loaded as a file)
 
+    // std::array<shader_info, 2> sources = {
+    //     shader_info{"shader_samples/shader1_triangle/test.vert", shader_stage::vertex},
+    //     shader_info{"shader_samples/shader1_triangle/test.frag", shader_stage::fragment}
+    // };
     std::array<shader_info, 2> sources = {
-        shader_info{"shader_samples/triangle_shader/test.vert", shader_stage::vertex},
-        shader_info{"shader_samples/triangle_shader/test.frag", shader_stage::fragment}
+        shader_info{"shader_samples/shader2_camera/test.vert", shader_stage::vertex},
+        shader_info{"shader_samples/shader2_camera/test.frag", shader_stage::fragment}
     };
     shader triangle_shader(sources);
 
@@ -95,16 +103,56 @@ int main(){
     triangle_shader.write("texture1", 0);
     triangle_shader.write("texture2", 1);
 
+    camera test_camera(glm::vec3(0.0f, 0.0f, 3.0f));
+    auto start_time = std::chrono::high_resolution_clock::now();
+    float delta_time = 0.f;
+
     while(!glfwWindowShouldClose(window)){
+        auto current_time = std::chrono::high_resolution_clock::now();
+        delta_time = std::chrono::duration<float, std::chrono::seconds::period>(current_time - start_time).count();
+        start_time = current_time;
+
         // glClearColor(0.5f, 1.0f, 1.0f, 1.f);
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // game logic input events
 
-        if(is_key_pressed(window, key_q)) {
-            glfwDestroyWindow(window);
+        if (is_key_pressed(window, key_w)) {
+            // camera_transform->position += forward * velocity;
+            test_camera.ProcessKeyboard(Camera_Movement::forward, delta_time);
         }
+        if (is_key_pressed(window, key_s)) {
+            // std::println("S Presed!");
+            // camera_transform->position -= forward * velocity;
+            test_camera.ProcessKeyboard(Camera_Movement::backward, delta_time);
+        }
+
+        if (is_key_pressed(window, key_d)) {
+            // std::println("D Presed!");
+            // camera_transform->position += right * velocity;
+            test_camera.ProcessKeyboard(Camera_Movement::right, delta_time);
+        }
+        if (is_key_pressed(window, key_a)) {
+            // std::println("A Presed!");
+            // camera_transform->position -= right * velocity;
+            test_camera.ProcessKeyboard(Camera_Movement::left, delta_time);
+        }
+
+        // Setting up view/proj matrices
+        glm::mat4 projection = glm::perspective(glm::radians(test_camera.Zoom), (float)width/(float)height, 0.1f, 100.0f);
+        // glm::mat4 projection = glm::ortho(0.0f, 1000.0f, 0.0f, 1000.0f, 0.1f, 100.0f);
+        glm::mat4 view = test_camera.GetViewMatrix();
+
+        // test_vec = model * test_vec;
+        triangle_shader.write("projection", projection);
+        triangle_shader.write("view", view);
+
+        glm::vec3 position(0.0f, 0.0f, -3.0f);
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, position);
+        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        triangle_shader.write("model", model);
 
         // draw our first triangle
         triangle_shader.bind();
