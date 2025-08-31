@@ -10,11 +10,15 @@
 #include <core/event.hpp>
 #include <core/vertex_array.hpp>
 #include <core/texture.hpp>
-#include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <core/test_camera.hpp>
-using namespace std;
+#include <flecs.h>
+#include <renderer/components.hpp>
 
 
 int main(){
@@ -107,6 +111,54 @@ int main(){
     auto start_time = std::chrono::high_resolution_clock::now();
     float delta_time = 0.f;
 
+    float aspect_ratio = (float)width / (float)height;
+    flecs::world scene_registry;
+
+    scene_registry.system<flecs::pair<tags::editor, projection_view>, transform, perspective_camera>().each([aspect_ratio](flecs::pair<tags::editor, projection_view> p_pair, transform p_transform, const perspective_camera& p_camera){
+        if(!p_camera.is_active) {
+            return;
+        }
+
+        // p_pair->projection = glm::mat4(1.f);
+
+        p_pair->projection =
+        glm::perspective(glm::radians(p_camera.field_of_view),
+                            aspect_ratio,
+                            p_camera.plane.x,
+                            p_camera.plane.y);
+        // p_pair->projection[1][1] *= -1;
+        // p_pair->view = glm::mat4(1.f);
+
+        // This is converting a glm::highp_vec4 to a glm::quat
+        // (quaternion)
+        glm::quat quaternion = glm::quat({ p_transform.quaternion.w,
+                                            p_transform.quaternion.x,
+                                            p_transform.quaternion.y,
+                                            p_transform.quaternion.z });
+        p_pair->view =
+        glm::translate(p_pair->view, p_transform.position) *
+        glm::mat4_cast(quaternion);
+
+        p_pair->view = glm::inverse(p_pair->view);
+    });
+
+    // creating camera entity
+
+    flecs::entity camera_entity = scene_registry.entity("Camera");
+    camera_entity.add<flecs::pair<tags::editor, projection_view>>();
+    camera_entity.set<transform>({
+        .position = {0.0f, 0.0f, 3.0f},
+    });
+    camera_entity.set<perspective_camera>({
+        .plane = { 0.1f, 1000.f },
+        .is_active = true,
+        .field_of_view = 45.f,
+    });
+
+    // query all camera objects
+    auto query_camera_objects =
+          scene_registry.query_builder<flecs::pair<tags::editor, projection_view>, perspective_camera>() .build();
+
     while(!glfwWindowShouldClose(window)){
         auto current_time = std::chrono::high_resolution_clock::now();
         delta_time = std::chrono::duration<float, std::chrono::seconds::period>(current_time - start_time).count();
@@ -140,13 +192,79 @@ int main(){
         }
 
         // Setting up view/proj matrices
+        /*
+        transform* camera_transform = camera_entity.get_mut<transform>();
+
+        float movement_speed = 10.f;
+        float rotation_speed = 1.f;
+        float velocity = movement_speed * delta_time;
+        float rotation_velocity = rotation_speed * delta_time;
+
+        glm::quat to_quaternion = to_quathp(camera_transform->quaternion);
+
+        glm::vec3 up = glm::rotate(to_quaternion, glm::vec3(0.f, 1.f, 0.f));
+        glm::vec3 forward = glm::rotate(to_quaternion, glm::vec3(0.f, 0.f, -1.f));
+        glm::vec3 right = glm::rotate(to_quaternion, glm::vec3(1.0f, 0.0f, 0.0f));
+
+        if (is_key_pressed(window, key_left_shift)) {
+            if (is_mouse_pressed(window, mouse_button_middle)) {
+                camera_transform->position += up * velocity;
+            }
+
+            if (is_mouse_pressed(window, mouse_button_right)) {
+                camera_transform->position -= up * velocity;
+            }
+        }
+
+        if (is_key_pressed(window, key_w)) {
+            // std::println("W Presed!");
+            camera_transform->position += forward * velocity;
+        }
+        if (is_key_pressed(window, key_s)) {
+            // std::println("S Presed!");
+            camera_transform->position -= forward * velocity;
+        }
+
+        if (is_key_pressed(window, key_d)) {
+            // std::println("D Presed!");
+            camera_transform->position += right * velocity;
+        }
+        if (is_key_pressed(window, key_a)) {
+            // std::println("A Presed!");
+            camera_transform->position -= right * velocity;
+        }
+
+        if (is_key_pressed(window, key_q)) {
+            // std::println("Q Presed!");
+            camera_transform->rotation.y += rotation_velocity;
+        }
+        if (is_key_pressed(window, key_e)) {
+            // std::println("E Presed!");
+            camera_transform->rotation.y -= rotation_velocity;
+        }
+
+        camera_transform->set_rotation(camera_transform->rotation);
+
+        query_camera_objects.each(
+              [&](flecs::entity,
+                  flecs::pair<tags::editor, projection_view> p_pair,
+                  perspective_camera& p_camera) {
+            if (!p_camera.is_active) {
+                return;
+            }
+            // proj_view = glm::mat4(1.f);
+            // proj_view = p_pair->projection * p_pair->view;
+            triangle_shader.write("projection", p_pair->projection);
+            triangle_shader.write("view", p_pair->view);
+        });
+        */
         glm::mat4 projection = glm::perspective(glm::radians(test_camera.Zoom), (float)width/(float)height, 0.1f, 100.0f);
-        // glm::mat4 projection = glm::ortho(0.0f, 1000.0f, 0.0f, 1000.0f, 0.1f, 100.0f);
         glm::mat4 view = test_camera.GetViewMatrix();
 
-        // test_vec = model * test_vec;
+        // // test_vec = model * test_vec;
         triangle_shader.write("projection", projection);
         triangle_shader.write("view", view);
+        
 
         glm::vec3 position(0.0f, 0.0f, -3.0f);
         glm::mat4 model = glm::mat4(1.0f);
