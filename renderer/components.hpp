@@ -17,7 +17,7 @@ struct transform {
 };
 
 struct mesh_renderer {
-    std::filesystem::path model_path;
+    std::string model_path;
     std::vector<std::string> textures_path; // TODO: Have a material cache mechanism, eventually
 };
 

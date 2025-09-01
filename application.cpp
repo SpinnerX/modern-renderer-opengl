@@ -102,7 +102,10 @@ int main(){
     mesh_entity.set<transform>({
         .position = {0.0f, 0.0f, -3.0f},
         .rotation = {0.0f, 0.0f, 1.0f}
-
+    });
+    mesh_entity.set<mesh_renderer>({
+        .model_path = "assets/sphere.obj",
+        .textures_path = {"assets/wood.png"}
     });
 
     renderer geometry_renderer("Renderer");
@@ -154,10 +157,10 @@ int main(){
         glm::mat4 proj_view = projection * view;
 
         geometry_renderer.begin(proj_view);
-        auto query_transforms = scene_registry.query_builder<transform>().build();
-        query_transforms.each([&](flecs::entity p_entity, transform&){
+        auto query_transforms = scene_registry.query_builder<transform, mesh_renderer>().build();
+        query_transforms.each([&](flecs::entity p_entity, transform&, mesh_renderer& p_mesh){
             const transform* t = p_entity.get<transform>();
-            geometry_renderer.submit(p_entity.id(), t, {});
+            geometry_renderer.submit(p_entity.id(), t, p_mesh);
         });
 
         geometry_renderer.end();
