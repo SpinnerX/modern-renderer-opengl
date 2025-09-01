@@ -65,15 +65,9 @@ void renderer::background_color(const glm::vec4& p_color) {
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void renderer::begin(camera p_camera, float p_aspect_ratio) {
-    glm::mat4 projection = glm::perspective(glm::radians(p_camera.Zoom), p_aspect_ratio, 0.1f, 100.0f);
-    glm::mat4 view = p_camera.GetViewMatrix();
-
-    // // test_vec = model * test_vec;
-    m_triangle_shader.write("projection", projection);
-    m_triangle_shader.write("view", view);
+void renderer::begin(glm::mat4 proj_view) {
     
-
+    m_triangle_shader.write("proj_view", proj_view);
     glm::vec3 position(0.0f, 0.0f, -3.0f);
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);

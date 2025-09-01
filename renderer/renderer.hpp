@@ -50,7 +50,7 @@ public:
     void background_color(const glm::vec4& p_color);
 
     // void begin(const glm::mat4& p_proj_view);
-    void begin(camera p_camera, float p_aspect_ratio);
+    void begin(glm::mat4 proj_view);
 
 
     // cached draw calls

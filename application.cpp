@@ -20,6 +20,7 @@
 #include <flecs.h>
 #include <renderer/components.hpp>
 #include <renderer/renderer.hpp>
+#include <core/test_camera.hpp>
 
 int main(){
     if(!glfwInit()){
@@ -50,64 +51,6 @@ int main(){
         return -1;
     }
 
-    // 1. Setting up hardcode shader as a string (this would be loaded as a file)
-
-    // std::array<shader_info, 2> sources = {
-    //     shader_info{"shader_samples/shader1_triangle/test.vert", shader_stage::vertex},
-    //     shader_info{"shader_samples/shader1_triangle/test.frag", shader_stage::fragment}
-    // };
-    // std::array<shader_info, 2> sources = {
-    //     shader_info{"shader_samples/shader2_camera/test.vert", shader_stage::vertex},
-    //     shader_info{"shader_samples/shader2_camera/test.frag", shader_stage::fragment}
-    // };
-    // shader triangle_shader(sources);
-
-    // std::println("loaded = {}", triangle_shader.loaded());
-
-    // if(!triangle_shader.loaded()) {
-    //     std::println("Triangle shader could not load one or many of the shader sources provided!!!");
-    // }
-
-    // 5. load your vertices
-    // opengl requires that you have your vertex buffer created with an ID
-    // then a vertex array to handle vertices
-    
-//    std::vector<float> vertices = {
-//         // positions          // colors           // texture coords
-//          0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-//          0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-//         -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-//         -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
-//     };
-
-//     std::vector<uint32_t> indices = {
-//         0, 1, 3, // first triangle
-//         1, 2, 3  // second triangle
-//     };
-
-//     vertex_array vao(vertices, indices);
-    
-//     /*
-//     Equivalent to: (in test.vert glsl shader)
-//     layout(location = 0) in vec3 aPos;
-//     layout(location = 1) in vec3 aColor;
-//     layout(location = 2) in vec2 aTexCoords;
-//     */
-//     std::array<vertex_attribute_element, 3> elements = {
-//         vertex_attribute_element{ .name = "aPos", .type = GL_FLOAT, .size = 3, },
-//         vertex_attribute_element{ .name = "aColor", .type = GL_FLOAT, .size = 3, },
-//         vertex_attribute_element{ .name = "aTexCoords", .type = GL_FLOAT, .size = 2, }
-//     };
-//     vao.vertex_attributes(elements);
-
-    // texture wood_texture(std::filesystem::path("assets/wood.png"));
-    // texture wall_texture(std::filesystem::path("assets/awesomeface.png"));
-
-    // triangle_shader.bind();
-    // triangle_shader.write("texture1", 0);
-    // triangle_shader.write("texture2", 1);
-
-    camera test_camera(glm::vec3(0.0f, 0.0f, 3.0f));
     auto start_time = std::chrono::high_resolution_clock::now();
     float delta_time = 0.f;
 
@@ -160,6 +103,8 @@ int main(){
     // query all camera objects
     auto query_camera_objects =
           scene_registry.query_builder<flecs::pair<tags::editor, projection_view>, perspective_camera>() .build();
+    
+    camera test_camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
     while(!glfwWindowShouldClose(window)){
         auto current_time = std::chrono::high_resolution_clock::now();
@@ -193,73 +138,6 @@ int main(){
             test_camera.ProcessKeyboard(Camera_Movement::left, delta_time);
         }
 
-        // Setting up view/proj matrices
-        /*
-        transform* camera_transform = camera_entity.get_mut<transform>();
-
-        float movement_speed = 10.f;
-        float rotation_speed = 1.f;
-        float velocity = movement_speed * delta_time;
-        float rotation_velocity = rotation_speed * delta_time;
-
-        glm::quat to_quaternion = to_quathp(camera_transform->quaternion);
-
-        glm::vec3 up = glm::rotate(to_quaternion, glm::vec3(0.f, 1.f, 0.f));
-        glm::vec3 forward = glm::rotate(to_quaternion, glm::vec3(0.f, 0.f, -1.f));
-        glm::vec3 right = glm::rotate(to_quaternion, glm::vec3(1.0f, 0.0f, 0.0f));
-
-        if (is_key_pressed(window, key_left_shift)) {
-            if (is_mouse_pressed(window, mouse_button_middle)) {
-                camera_transform->position += up * velocity;
-            }
-
-            if (is_mouse_pressed(window, mouse_button_right)) {
-                camera_transform->position -= up * velocity;
-            }
-        }
-
-        if (is_key_pressed(window, key_w)) {
-            // std::println("W Presed!");
-            camera_transform->position += forward * velocity;
-        }
-        if (is_key_pressed(window, key_s)) {
-            // std::println("S Presed!");
-            camera_transform->position -= forward * velocity;
-        }
-
-        if (is_key_pressed(window, key_d)) {
-            // std::println("D Presed!");
-            camera_transform->position += right * velocity;
-        }
-        if (is_key_pressed(window, key_a)) {
-            // std::println("A Presed!");
-            camera_transform->position -= right * velocity;
-        }
-
-        if (is_key_pressed(window, key_q)) {
-            // std::println("Q Presed!");
-            camera_transform->rotation.y += rotation_velocity;
-        }
-        if (is_key_pressed(window, key_e)) {
-            // std::println("E Presed!");
-            camera_transform->rotation.y -= rotation_velocity;
-        }
-
-        camera_transform->set_rotation(camera_transform->rotation);
-
-        query_camera_objects.each(
-              [&](flecs::entity,
-                  flecs::pair<tags::editor, projection_view> p_pair,
-                  perspective_camera& p_camera) {
-            if (!p_camera.is_active) {
-                return;
-            }
-            // proj_view = glm::mat4(1.f);
-            // proj_view = p_pair->projection * p_pair->view;
-            triangle_shader.write("projection", p_pair->projection);
-            triangle_shader.write("view", p_pair->view);
-        });
-        */
         // glm::mat4 projection = glm::perspective(glm::radians(test_camera.Zoom), (float)width/(float)height, 0.1f, 100.0f);
         // glm::mat4 view = test_camera.GetViewMatrix();
 
@@ -279,8 +157,15 @@ int main(){
         // wood_texture.bind();
         // wall_texture.bind(1);
         // glDrawElements(GL_TRIANGLES, (int)indices.size(), GL_UNSIGNED_INT, nullptr);
+        glm::mat4 projection = glm::perspective(glm::radians(test_camera.Zoom), aspect_ratio, 0.1f, 100.0f);
+        glm::mat4 view = test_camera.GetViewMatrix();
 
-        geometry_renderer.begin(test_camera, aspect_ratio);
+        glm::mat4 proj_view = projection * view;
+
+        // // test_vec = model * test_vec;
+        // m_triangle_shader.write("projection", projection);
+        // m_triangle_shader.write("view", view);
+        geometry_renderer.begin(proj_view);
         geometry_renderer.end();
         
 
