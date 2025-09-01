@@ -37,23 +37,28 @@ renderer::renderer(const std::string& p_name) {
         1, 2, 3  // second triangle
     };
 
-    m_mesh_vao = vertex_array(vertices, indices);
+    m_default_mesh = mesh(vertices, indices);
+
+    // m_mesh_vao = vertex_array(vertices, indices);
     
-    /*
-    Equivalent to: (in test.vert glsl shader)
-    layout(location = 0) in vec3 aPos;
-    layout(location = 1) in vec3 aColor;
-    layout(location = 2) in vec2 aTexCoords;
-    */
+    // /*
+    // Equivalent to: (in test.vert glsl shader)
+    // layout(location = 0) in vec3 aPos;
+    // layout(location = 1) in vec3 aColor;
+    // layout(location = 2) in vec2 aTexCoords;
+    // */
     std::array<vertex_attribute_element, 3> elements = {
         vertex_attribute_element{ .name = "aPos", .type = GL_FLOAT, .size = 3, },
         vertex_attribute_element{ .name = "aColor", .type = GL_FLOAT, .size = 3, },
         vertex_attribute_element{ .name = "aTexCoords", .type = GL_FLOAT, .size = 2, }
     };
-    m_mesh_vao.vertex_attributes(elements);
+    m_default_mesh.vertex_attributes(elements);
+    m_default_mesh.add_texture("assets/wood.png");
+    m_default_mesh.add_texture("assets/awesomeface.png");
+    // m_mesh_vao.vertex_attributes(elements);
 
-    m_wood = texture(std::filesystem::path("assets/wood.png"));
-    m_wall = texture(std::filesystem::path("assets/awesomeface.png"));
+    // m_wood = texture(std::filesystem::path("assets/wood.png"));
+    // m_wall = texture(std::filesystem::path("assets/awesomeface.png"));
 
     m_triangle_shader.bind();
     m_triangle_shader.write("texture1", 0);
@@ -75,17 +80,16 @@ void renderer::begin(glm::mat4 proj_view) {
     m_triangle_shader.write("model", model);
 }
 
-// void renderer::draw_mesh(uint64_t p_uuid, const transform* p_transform, const mesh_renderer& p_user_mesh) {
-//     m_model = glm::mat4(1.f);
-//     m_model = glm::translate(m_model, p_transform->position);
-//     m_model = glm::scale(m_model, p_transform->scale);
-// }
+void renderer::draw(const transform* p_transform, [[maybe_unused]] const mesh_renderer& p_mesh_component) {
+
+}
 
 void renderer::end() {
 
     // draw our first triangle
     m_triangle_shader.bind();
-    m_wood.bind();
-    m_wall.bind(1);
-    glDrawElements(GL_TRIANGLES, m_mesh_vao.size(), GL_UNSIGNED_INT, nullptr);
+    // m_wood.bind();
+    // m_wall.bind(1);
+    m_default_mesh.bind();
+    glDrawElements(GL_TRIANGLES, (int)m_default_mesh.size(), GL_UNSIGNED_INT, nullptr);
 }
