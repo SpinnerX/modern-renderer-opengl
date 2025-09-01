@@ -112,15 +112,18 @@ int main(){
           scene_registry.query_builder<flecs::pair<tags::editor, projection_view>, perspective_camera>() .build();
     
     camera test_camera(glm::vec3(0.0f, 0.0f, 3.0f));
+    
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_ALWAYS); 
 
     while(!glfwWindowShouldClose(window)){
         auto current_time = std::chrono::high_resolution_clock::now();
         delta_time = std::chrono::duration<float, std::chrono::seconds::period>(current_time - start_time).count();
         start_time = current_time;
 
-        // glClearColor(0.5f, 1.0f, 1.0f, 1.f);
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        geometry_renderer.background_color({0.2f, 0.3f, 0.3f, 1.0f});
 
         // game logic input events
 

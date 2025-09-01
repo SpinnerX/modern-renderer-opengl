@@ -1,14 +1,15 @@
 #pragma once
 #include <core/vertex_buffer.hpp>
 #include <core/index_buffer.hpp>
+#include <filesystem>
 
 class vertex_array {
 public:
     vertex_array() = default;
-    // vertex_array(const std::span<float>& p_vertices);
     vertex_array(const std::span<float>& p_vertices, const std::span<uint32_t>& p_indices);
-    // vertex_array(const std::span<vertex>& p_vertices);
-    // vertex_array(const std::span<vertex>& p_vertices, const std::span<uint32_t>& p_indices);
+    vertex_array(const std::filesystem::path& p_path);
+
+    [[nodiscard]] bool loaded() const { return m_loaded; }
 
     void bind();
 
@@ -25,5 +26,6 @@ private:
     index_buffer m_ibo;
     vertex_attribute m_attributes;
     bool m_has_indices=false;
+    bool m_loaded=false;
     uint32_t m_id=-1;
 };

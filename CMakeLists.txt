@@ -13,7 +13,7 @@ build_application(
     src/core/event.cpp
     src/core/image.cpp
     src/core/texture.cpp
-    # src/core/obj_loader.cpp
+    src/core/obj_loader.cpp
     # src/core/shader_storage.cpp
     src/renderer/renderer.cpp
 

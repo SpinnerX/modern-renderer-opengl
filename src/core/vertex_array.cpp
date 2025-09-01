@@ -1,5 +1,6 @@
 #include <core/vertex_array.hpp>
 #include <print>
+#include <core/obj_loader.hpp>
 
 vertex_array::vertex_array(const std::span<float>& p_vertices, const std::span<uint32_t>& p_indices) {
     glGenVertexArrays(1, &m_id);
@@ -7,7 +8,21 @@ vertex_array::vertex_array(const std::span<float>& p_vertices, const std::span<u
     m_vbo = vertex_buffer(p_vertices);
     m_ibo = index_buffer(p_indices);
 
+    m_loaded = true;
     m_has_indices = true;
+}
+
+vertex_array::vertex_array(const std::filesystem::path& p_path) {
+    glGenVertexArrays(1, &m_id);
+    glBindVertexArray(m_id);
+    obj_loader loader(p_path.string());
+    m_loaded = loader.loaded();
+    m_vbo = vertex_buffer(loader.vertices());
+    m_ibo = index_buffer(loader.indices());
+
+    if(m_ibo.size() > 0) {
+        m_has_indices = true;
+    }
 }
 
 void vertex_array::bind() {

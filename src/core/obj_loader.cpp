@@ -81,6 +81,7 @@ obj_loader::obj_loader(const std::filesystem::path& p_filepath) {
         }
     }
 
+
     // m_vao = vertex_array(vertices, indices);
     m_model_loaded = true;
 }
