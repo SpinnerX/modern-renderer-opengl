@@ -53,16 +53,7 @@ renderer::renderer(const std::string& p_name) {
         vertex_attribute_element{ .name = "aTexCoords", .type = GL_FLOAT, .size = 2, }
     };
     m_default_mesh.vertex_attributes(elements);
-    m_default_mesh.add_texture("assets/wood.png");
-    m_default_mesh.add_texture("assets/awesomeface.png");
-    // m_mesh_vao.vertex_attributes(elements);
-
-    // m_wood = texture(std::filesystem::path("assets/wood.png"));
-    // m_wall = texture(std::filesystem::path("assets/awesomeface.png"));
-
-    m_triangle_shader.bind();
-    m_triangle_shader.write("texture1", 0);
-    m_triangle_shader.write("texture2", 1);
+    m_default_mesh.add_texture("assets/container_diffuse.png");
 }
 
 void renderer::background_color(const glm::vec4& p_color) {
@@ -73,19 +64,24 @@ void renderer::background_color(const glm::vec4& p_color) {
 void renderer::begin(glm::mat4 proj_view) {
     
     m_triangle_shader.write("proj_view", proj_view);
-    glm::vec3 position(0.0f, 0.0f, -3.0f);
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, position);
+    // glm::vec3 position(0.0f, 0.0f, -3.0f);
+    // glm::mat4 model = glm::mat4(1.0f);
+    // model = glm::translate(model, position);
+    // // model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+    // m_triangle_shader.write("model", model);
+}
+
+void renderer::submit(uint64_t p_uuid, const transform* p_transform, const mesh_renderer& p_mesh_component) {
+    glm::mat4 model = glm::mat4(1.f);
+    model = glm::translate(model, p_transform->position);
+    // model = glm::scale(model, p_transform->scale);
     // model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::rotate(model, glm::radians(45.f), p_transform->rotation);
+
     m_triangle_shader.write("model", model);
 }
 
-void renderer::draw(const transform* p_transform, [[maybe_unused]] const mesh_renderer& p_mesh_component) {
-
-}
-
 void renderer::end() {
-
     // draw our first triangle
     m_triangle_shader.bind();
     // m_wood.bind();

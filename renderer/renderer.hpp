@@ -52,7 +52,9 @@ public:
 
     // void draw_mesh(uint64_t p_uuid, const transform* p_transform, const mesh_renderer& p_user_mesh);
 
-    void draw(const transform* p_transform, const mesh_renderer& p_mesh_component);
+    //! @brief Every submission of a task is to be operated whenever an object has these specific component
+    //! @brief Then that work will be done and prepared before the the draw call gets done
+    void submit(uint64_t p_uuid, const transform* p_transform, const mesh_renderer& p_mesh_component);
 
 
     void end();
@@ -60,7 +62,7 @@ public:
 
 private:
     vertex_array m_mesh_vao;
-    std::array<vertex_attribute_element, 3> m_mesh_vertex_attributes;
+    // std::array<vertex_attribute_element, 3> m_mesh_vertex_attributes;
     // glm::mat4 m_model{1.f};
 
     shader m_triangle_shader;

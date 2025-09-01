@@ -8,17 +8,6 @@ texture::texture(const std::filesystem::path& p_path, bool p_gamma_enable) {
     invalidate(p_path, p_gamma_enable);
 }
 
-texture::texture(const std::filesystem::path& p_path, texture_spec p_specification) {
-    glGenTextures(1, &m_texture_id);
-    invalidate(p_path, p_specification);
-}
-
-
-texture::texture(const image_extent& p_extent, texture_spec p_specification) {
-    glGenTextures(1, &m_texture_id);
-    invalidate(p_extent, p_specification);
-}
-
 void texture::bind(uint32_t p_index) {
     if(p_index == 0){
         glActiveTexture(GL_TEXTURE0);
@@ -41,9 +30,8 @@ void texture::invalidate(const std::filesystem::path& p_path, bool p_gamma_enabl
     // load and generate the texture
     int image_width, image_height, pixel_channels;
     stbi_set_flip_vertically_on_load(true);
-    unsigned char *data = stbi_load(p_path.string().c_str(), &image_width, &image_height, &pixel_channels, 0);
+    stbi_uc *data = stbi_load(p_path.string().c_str(), &image_width, &image_height, &pixel_channels, 0);
     
-    std::println("Pixel Channels = {}\n", pixel_channels);
     GLenum internal_format;
     GLenum format_to_use;
 
@@ -89,7 +77,3 @@ void texture::invalidate(const std::filesystem::path& p_path, bool p_gamma_enabl
 
     m_texture_loaded = true;
 }
-
-void texture::invalidate(const std::filesystem::path& p_path, texture_spec p_specification) {}
-
-void texture::invalidate(const image_extent& p_extent, texture_spec p_specification) {}

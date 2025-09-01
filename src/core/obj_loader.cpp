@@ -27,8 +27,8 @@ obj_loader::obj_loader(const std::filesystem::path& p_filepath) {
         return;
     }
 
-    std::vector<vertex> vertices;
-    std::vector<uint32_t> indices;
+    // std::vector<vertex> vertices;
+    // std::vector<uint32_t> indices;
     std::unordered_map<vertex, uint32_t> unique_vertices{};
 
     for (const auto& shape : shapes) {
@@ -38,8 +38,8 @@ obj_loader::obj_loader(const std::filesystem::path& p_filepath) {
             // vertices.push_back(vertex);
             if (!unique_vertices.contains(vertex)) {
                 unique_vertices[vertex] =
-                    static_cast<uint32_t>(vertices.size());
-                vertices.push_back(vertex);
+                    static_cast<uint32_t>(m_vertices.size());
+                m_vertices.push_back(vertex);
             }
 
             if (index.vertex_index >= 0) {
@@ -73,28 +73,14 @@ obj_loader::obj_loader(const std::filesystem::path& p_filepath) {
 
             if (!unique_vertices.contains(vertex)) {
                 unique_vertices[vertex] =
-                    static_cast<uint32_t>(vertices.size());
-                vertices.push_back(vertex);
+                    static_cast<uint32_t>(m_vertices.size());
+                m_vertices.push_back(vertex);
             }
 
-            indices.push_back(unique_vertices[vertex]);
+            m_indices.push_back(unique_vertices[vertex]);
         }
     }
 
-    // m_vbo = vertex_buffer(vertices);
-    // m_ibo = index_buffer(indices);
     // m_vao = vertex_array(vertices, indices);
     m_model_loaded = true;
-}
-
-void obj_loader::bind() {
-    m_vao.bind();
-}
-
-void obj_loader::unbind() {
-    m_vao.unbind();
-}
-
-void obj_loader::draw() {
-    glDrawElements(GL_TRIANGLES, m_vao.size(), GL_UNSIGNED_INT, nullptr);
 }

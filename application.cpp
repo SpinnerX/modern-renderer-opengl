@@ -87,15 +87,22 @@ int main(){
 
     // creating camera entity
 
-    flecs::entity camera_entity = scene_registry.entity("Camera");
-    camera_entity.add<flecs::pair<tags::editor, projection_view>>();
-    camera_entity.set<transform>({
-        .position = {0.0f, 0.0f, 3.0f},
-    });
-    camera_entity.set<perspective_camera>({
-        .plane = { 0.1f, 1000.f },
-        .is_active = true,
-        .field_of_view = 45.f,
+    // flecs::entity camera_entity = scene_registry.entity("Camera");
+    // camera_entity.add<flecs::pair<tags::editor, projection_view>>();
+    // camera_entity.set<transform>({
+    //     .position = {0.0f, 0.0f, 3.0f},
+    // });
+    // camera_entity.set<perspective_camera>({
+    //     .plane = { 0.1f, 1000.f },
+    //     .is_active = true,
+    //     .field_of_view = 45.f,
+    // });
+
+    flecs::entity mesh_entity = scene_registry.entity("Some Mesh");
+    mesh_entity.set<transform>({
+        .position = {0.0f, 0.0f, -3.0f},
+        .rotation = {0.0f, 0.0f, 1.0f}
+
     });
 
     renderer geometry_renderer("Renderer");
@@ -138,34 +145,18 @@ int main(){
             test_camera.ProcessKeyboard(Camera_Movement::left, delta_time);
         }
 
-        // glm::mat4 projection = glm::perspective(glm::radians(test_camera.Zoom), (float)width/(float)height, 0.1f, 100.0f);
-        // glm::mat4 view = test_camera.GetViewMatrix();
-
-        // // // test_vec = model * test_vec;
-        // triangle_shader.write("projection", projection);
-        // triangle_shader.write("view", view);
-        
-
-        // glm::vec3 position(0.0f, 0.0f, -3.0f);
-        // glm::mat4 model = glm::mat4(1.0f);
-        // model = glm::translate(model, position);
-        // model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-        // triangle_shader.write("model", model);
-
-        // // draw our first triangle
-        // triangle_shader.bind();
-        // wood_texture.bind();
-        // wall_texture.bind(1);
-        // glDrawElements(GL_TRIANGLES, (int)indices.size(), GL_UNSIGNED_INT, nullptr);
         glm::mat4 projection = glm::perspective(glm::radians(test_camera.Zoom), aspect_ratio, 0.1f, 100.0f);
         glm::mat4 view = test_camera.GetViewMatrix();
 
         glm::mat4 proj_view = projection * view;
 
-        // // test_vec = model * test_vec;
-        // m_triangle_shader.write("projection", projection);
-        // m_triangle_shader.write("view", view);
         geometry_renderer.begin(proj_view);
+        auto query_transforms = scene_registry.query_builder<transform>().build();
+        query_transforms.each([&](flecs::entity p_entity, transform&){
+            const transform* t = p_entity.get<transform>();
+            geometry_renderer.submit(p_entity.id(), t, {});
+        });
+
         geometry_renderer.end();
         
 

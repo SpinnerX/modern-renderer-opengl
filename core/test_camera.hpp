@@ -1,4 +1,10 @@
 #pragma once
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <glm/glm.hpp>
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods

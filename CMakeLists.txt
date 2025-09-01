@@ -5,6 +5,7 @@ project(Starter CXX)
 build_application(
     SOURCES
     application.cpp
+    src/core/math_utilities.cpp
     src/core/vertex_buffer.cpp
     src/core/index_buffer.cpp
     src/core/vertex_array.cpp
@@ -12,7 +13,9 @@ build_application(
     src/core/event.cpp
     src/core/image.cpp
     src/core/texture.cpp
-    src/core/obj_loader.cpp
+    # src/core/obj_loader.cpp
+    # src/core/shader_storage.cpp
+    src/renderer/renderer.cpp
 
     PACKAGES
     glfw3

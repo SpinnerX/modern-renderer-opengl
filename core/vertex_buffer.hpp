@@ -79,7 +79,7 @@ private:
 class vertex_buffer {
 public:
     vertex_buffer() = default;
-    vertex_buffer(const std::span<vertex>& p_vertices);
+    vertex_buffer(const std::span<const vertex>& p_vertices);
     vertex_buffer(const std::span<float>& p_vertices);
     ~vertex_buffer();
     
@@ -90,7 +90,7 @@ public:
 
 private:
     void write(const std::span<float>& p_vertices);
-    void write(const std::span<vertex>& p_vertices);
+    void write(const std::span<const vertex>& p_vertices);
 
 private:
     uint32_t m_id=-1;
