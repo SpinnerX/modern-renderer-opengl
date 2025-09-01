@@ -19,7 +19,7 @@
 #include <core/test_camera.hpp>
 #include <flecs.h>
 #include <renderer/components.hpp>
-
+#include <renderer/renderer.hpp>
 
 int main(){
     if(!glfwInit()){
@@ -40,7 +40,7 @@ int main(){
     std::string title = "Hello Window";
     GLFWwindow* window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* p_window, int p_width, int p_height){
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* p_window, /*NOLINT*/int p_width, int p_height){
         glViewport(0, 0, p_width, p_height);
     });
 
@@ -56,56 +56,56 @@ int main(){
     //     shader_info{"shader_samples/shader1_triangle/test.vert", shader_stage::vertex},
     //     shader_info{"shader_samples/shader1_triangle/test.frag", shader_stage::fragment}
     // };
-    std::array<shader_info, 2> sources = {
-        shader_info{"shader_samples/shader2_camera/test.vert", shader_stage::vertex},
-        shader_info{"shader_samples/shader2_camera/test.frag", shader_stage::fragment}
-    };
-    shader triangle_shader(sources);
+    // std::array<shader_info, 2> sources = {
+    //     shader_info{"shader_samples/shader2_camera/test.vert", shader_stage::vertex},
+    //     shader_info{"shader_samples/shader2_camera/test.frag", shader_stage::fragment}
+    // };
+    // shader triangle_shader(sources);
 
-    std::println("loaded = {}", triangle_shader.loaded());
+    // std::println("loaded = {}", triangle_shader.loaded());
 
-    if(!triangle_shader.loaded()) {
-        std::println("Triangle shader could not load one or many of the shader sources provided!!!");
-    }
+    // if(!triangle_shader.loaded()) {
+    //     std::println("Triangle shader could not load one or many of the shader sources provided!!!");
+    // }
 
     // 5. load your vertices
     // opengl requires that you have your vertex buffer created with an ID
     // then a vertex array to handle vertices
     
-   std::vector<float> vertices = {
-        // positions          // colors           // texture coords
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
-    };
+//    std::vector<float> vertices = {
+//         // positions          // colors           // texture coords
+//          0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+//          0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+//         -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+//         -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
+//     };
 
-    std::vector<uint32_t> indices = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
-    };
+//     std::vector<uint32_t> indices = {
+//         0, 1, 3, // first triangle
+//         1, 2, 3  // second triangle
+//     };
 
-    vertex_array vao(vertices, indices);
+//     vertex_array vao(vertices, indices);
     
-    /*
-    Equivalent to: (in test.vert glsl shader)
-    layout(location = 0) in vec3 aPos;
-    layout(location = 1) in vec3 aColor;
-    layout(location = 2) in vec2 aTexCoords;
-    */
-    std::array<vertex_attribute_element, 3> elements = {
-        vertex_attribute_element{ .name = "aPos", .type = GL_FLOAT, .size = 3, },
-        vertex_attribute_element{ .name = "aColor", .type = GL_FLOAT, .size = 3, },
-        vertex_attribute_element{ .name = "aTexCoords", .type = GL_FLOAT, .size = 2, }
-    };
-    vao.vertex_attributes(elements);
+//     /*
+//     Equivalent to: (in test.vert glsl shader)
+//     layout(location = 0) in vec3 aPos;
+//     layout(location = 1) in vec3 aColor;
+//     layout(location = 2) in vec2 aTexCoords;
+//     */
+//     std::array<vertex_attribute_element, 3> elements = {
+//         vertex_attribute_element{ .name = "aPos", .type = GL_FLOAT, .size = 3, },
+//         vertex_attribute_element{ .name = "aColor", .type = GL_FLOAT, .size = 3, },
+//         vertex_attribute_element{ .name = "aTexCoords", .type = GL_FLOAT, .size = 2, }
+//     };
+//     vao.vertex_attributes(elements);
 
-    texture wood_texture(std::filesystem::path("assets/wood.png"));
-    texture wall_texture(std::filesystem::path("assets/awesomeface.png"));
+    // texture wood_texture(std::filesystem::path("assets/wood.png"));
+    // texture wall_texture(std::filesystem::path("assets/awesomeface.png"));
 
-    triangle_shader.bind();
-    triangle_shader.write("texture1", 0);
-    triangle_shader.write("texture2", 1);
+    // triangle_shader.bind();
+    // triangle_shader.write("texture1", 0);
+    // triangle_shader.write("texture2", 1);
 
     camera test_camera(glm::vec3(0.0f, 0.0f, 3.0f));
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -154,6 +154,8 @@ int main(){
         .is_active = true,
         .field_of_view = 45.f,
     });
+
+    renderer geometry_renderer("Renderer");
 
     // query all camera objects
     auto query_camera_objects =
@@ -258,25 +260,29 @@ int main(){
             triangle_shader.write("view", p_pair->view);
         });
         */
-        glm::mat4 projection = glm::perspective(glm::radians(test_camera.Zoom), (float)width/(float)height, 0.1f, 100.0f);
-        glm::mat4 view = test_camera.GetViewMatrix();
+        // glm::mat4 projection = glm::perspective(glm::radians(test_camera.Zoom), (float)width/(float)height, 0.1f, 100.0f);
+        // glm::mat4 view = test_camera.GetViewMatrix();
 
-        // // test_vec = model * test_vec;
-        triangle_shader.write("projection", projection);
-        triangle_shader.write("view", view);
+        // // // test_vec = model * test_vec;
+        // triangle_shader.write("projection", projection);
+        // triangle_shader.write("view", view);
         
 
-        glm::vec3 position(0.0f, 0.0f, -3.0f);
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, position);
-        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-        triangle_shader.write("model", model);
+        // glm::vec3 position(0.0f, 0.0f, -3.0f);
+        // glm::mat4 model = glm::mat4(1.0f);
+        // model = glm::translate(model, position);
+        // model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        // triangle_shader.write("model", model);
 
-        // draw our first triangle
-        triangle_shader.bind();
-        wood_texture.bind();
-        wall_texture.bind(1);
-        glDrawElements(GL_TRIANGLES, (int)indices.size(), GL_UNSIGNED_INT, nullptr);
+        // // draw our first triangle
+        // triangle_shader.bind();
+        // wood_texture.bind();
+        // wall_texture.bind(1);
+        // glDrawElements(GL_TRIANGLES, (int)indices.size(), GL_UNSIGNED_INT, nullptr);
+
+        geometry_renderer.begin(test_camera, aspect_ratio);
+        geometry_renderer.end();
+        
 
         glfwSwapBuffers(window);
 
