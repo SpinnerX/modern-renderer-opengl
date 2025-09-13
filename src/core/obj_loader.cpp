@@ -4,6 +4,11 @@
 #include <core/hash.hpp>
 
 obj_loader::obj_loader(const std::filesystem::path& p_filepath) {
+    invalidate(p_filepath);
+}
+
+
+void obj_loader::invalidate(const std::filesystem::path& p_filepath) {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
@@ -32,6 +37,27 @@ obj_loader::obj_loader(const std::filesystem::path& p_filepath) {
     std::unordered_map<vertex, uint32_t> unique_vertices{};
 
     for (const auto& shape : shapes) {
+        size_t index_offset = 0;
+
+        // for(size_t face = 0; face < shape.mesh.material_ids)
+        for(auto face_vertex : shape.mesh.num_face_vertices) {
+            // if(material_id >= 0 and material_id < )
+            int material_id = shape.mesh.material_ids[face_vertex];
+
+            if(material_id >= 0 and material_id < materials.size()) {
+                const tinyobj::material_t& material = materials[material_id];
+
+                // bind diffuse texture if available
+                if(!material.diffuse_texname.empty()) {
+                    std::println("Diffuse Texture Name = {}", material.diffuse_texname);
+                }
+                else {
+                    std::println("Diffuse texture.empty()!!!");
+                }
+            }
+        }
+
+
         for (const auto& index : shape.mesh.indices) {
             vertex vertex{};
 
@@ -84,4 +110,5 @@ obj_loader::obj_loader(const std::filesystem::path& p_filepath) {
 
     // m_vao = vertex_array(vertices, indices);
     m_model_loaded = true;
+    std::println("3d model loaded!!!");
 }

@@ -16,12 +16,6 @@ renderer::renderer(const std::string& p_name) {
     };
     m_shader_storage.load_shader(shader_type::geometry, geometry_shaders);
 
-    std::array<vertex_attribute_element, 3> mesh_vertex_attributes = {
-        vertex_attribute_element{ .name = "aPos", .type = GL_FLOAT, .size = 3, },
-        vertex_attribute_element{ .name = "aColor", .type = GL_FLOAT, .size = 3, },
-        vertex_attribute_element{ .name = "aTexCoords", .type = GL_FLOAT, .size = 2, }
-    };
-
     std::array<shader_info, 2> lighting_shaders = {
         shader_info{"shader_samples/shader3_lighting1/lighting.vert", shader_stage::vertex},
         shader_info{"shader_samples/shader3_lighting1/lighting.frag", shader_stage::fragment}
@@ -71,11 +65,12 @@ void renderer::submit(uint64_t p_uuid, const transform* p_transform, const mesh_
         }
 
         if(new_mesh.loaded()) {
+            geo_shader->bind();
+            geo_shader->write("model", model);
+            geo_shader->write("light_color", p_mesh_component.color);
             m_cached_meshes.emplace(p_uuid, new_mesh);
         }
     }
-    geo_shader->bind();
-    geo_shader->write("model", model);
 }
 
 void renderer::end() {

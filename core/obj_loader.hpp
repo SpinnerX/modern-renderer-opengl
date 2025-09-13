@@ -8,6 +8,8 @@ public:
     obj_loader() = default;
     obj_loader(const std::filesystem::path& p_path);
 
+    void invalidate(const std::filesystem::path& p_path);
+
     [[nodiscard]] bool loaded() const { return m_model_loaded; }
     [[nodiscard]] std::span<const vertex> vertices() const {
         return std::span<const vertex>(m_vertices.begin(),m_vertices.end());

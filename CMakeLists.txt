@@ -14,8 +14,10 @@ build_application(
     src/core/image.cpp
     src/core/texture.cpp
     src/core/obj_loader.cpp
-    # src/core/shader_storage.cpp
+    src/core/framebuffer.cpp
+    src/core/shader_storage.cpp
     src/renderer/renderer.cpp
+    src/widgets/widgets.cpp
 
     PACKAGES
     glfw3
@@ -24,6 +26,7 @@ build_application(
     flecs
     stb
     tinyobjloader
+    imguidocking
 
     LINK_PACKAGES
     glfw
@@ -31,6 +34,7 @@ build_application(
     glad::glad
     flecs::flecs_static
     stb::stb
+    imguidocking::imguidocking
     tinyobjloader::tinyobjloader
 )
 

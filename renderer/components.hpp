@@ -18,7 +18,17 @@ struct transform {
 
 struct mesh_renderer {
     std::string model_path;
+    glm::highp_vec4 color{1.f};
     std::vector<std::string> textures_path; // TODO: Have a material cache mechanism, eventually
+};
+
+/**
+ * @brief because every object contains a transform component
+ * 
+ * This component will assume that is already handled and will only contain properties for configuring the point light itself.
+*/
+struct point_light {
+    glm::vec3 direction;
 };
 
 struct perspective_camera {
@@ -32,9 +42,6 @@ struct perspective_camera {
     // Defaults to 45.0f in radians
     float field_of_view = glm::radians(45.f);
 
-    // rendertarget specifically for camera (TEMP -- need to implement
-    // viewport management potentially)
-    // viewport target = viewport::none;
 };
 
 struct projection_view {

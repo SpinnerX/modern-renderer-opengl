@@ -5,6 +5,7 @@
 
 texture::texture(const std::filesystem::path& p_path, bool p_gamma_enable) {
     glGenTextures(1, &m_texture_id);
+    bind();
     invalidate(p_path, p_gamma_enable);
 }
 
@@ -25,7 +26,6 @@ void texture::unbind() {
 }
 
 void texture::invalidate(const std::filesystem::path& p_path, bool p_gamma_enable) {
-    bind();
     
     // load and generate the texture
     int image_width, image_height, pixel_channels;
