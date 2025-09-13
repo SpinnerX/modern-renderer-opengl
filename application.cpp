@@ -86,8 +86,11 @@ int main(){
         p_pair->view = glm::inverse(p_pair->view);
     });
 
-    // creating camera entity
+    // query all camera objects
+    auto query_camera_objects =
+          scene_registry.query_builder<flecs::pair<tags::editor, projection_view>, perspective_camera>() .build();
 
+    // creating camera entity
     flecs::entity camera_entity = scene_registry.entity("Camera");
     camera_entity.add<flecs::pair<tags::editor, projection_view>>();
     camera_entity.set<transform>({
@@ -99,6 +102,7 @@ int main(){
         .field_of_view = 45.f,
     });
 
+    // Creating a sphere
     flecs::entity mesh_entity = scene_registry.entity("Some Mesh");
     mesh_entity.set<transform>({
         .position = {0.0f, 0.0f, -3.0f},
@@ -121,12 +125,6 @@ int main(){
 
     renderer geometry_renderer("Renderer");
 
-    // query all camera objects
-    auto query_camera_objects =
-          scene_registry.query_builder<flecs::pair<tags::editor, projection_view>, perspective_camera>() .build();
-    
-    // camera test_camera(glm::vec3(0.0f, 0.0f, 3.0f));
-
     glm::mat4 proj_view(1.f);
     
     glEnable(GL_DEPTH_TEST);
@@ -138,8 +136,6 @@ int main(){
 
         scene_registry.progress(delta_time);
 
-        // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         geometry_renderer.background_color({0.2f, 0.3f, 0.3f, 1.0f});
 
         // game logic input events
@@ -175,10 +171,23 @@ int main(){
             camera_transform->position -= right * velocity;
             // test_camera.ProcessKeyboard(Camera_Movement::left, delta_time);
         }
+        if (is_key_pressed(window, key_q)) {
+            camera_transform->rotation.y += rotation_velocity;
+        }
+        if (is_key_pressed(window, key_e)) {
+            camera_transform->rotation.y -= rotation_velocity;
+        }
 
-        // glm::mat4 projection = glm::perspective(glm::radians(test_camera.Zoom), aspect_ratio, 0.1f, 100.0f);
-        // glm::mat4 view = test_camera.GetViewMatrix();
-        // proj_view = projection * view;
+        if(is_key_pressed(window, key_left_shift)) {
+            camera_transform->position += up * velocity;
+        }
+
+        if(is_key_pressed(window, key_space)) {
+            camera_transform->position -= up * velocity;
+        }
+
+        camera_transform->set_rotation(camera_transform->rotation);
+
         query_camera_objects.each(
               [&](flecs::entity,
                 flecs::pair<tags::editor, projection_view> p_pair,
