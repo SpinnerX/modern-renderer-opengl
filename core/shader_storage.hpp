@@ -1,23 +1,31 @@
 #pragma once
-#include <filesystem>
 #include <core/shader.hpp>
-#include <map>
+#include <unordered_map>
+#include <memory>
 
-/**
- * @brief storage of all of the shaders loaded into the renderer
- * TODO: Could also potentially store custom shaders...
-*/
+enum shader_type {
+    geometry,
+    lighting,
+    shadows,
+};
+
+template<typename T>
+using ref = std::shared_ptr<T>;
+
 class shader_storage {
 public:
     shader_storage() = default;
 
-    void add(const std::string& p_name, const std::span<const shader_info>& p_shader_sources);
+    void load_shader(shader_type p_type, const std::span<shader_info>& p_shader_src);
 
-    shader* get(const std::string& p_name) {
-        return &m_shader_storage[p_name];
+    ref<shader> get(shader_type p_type) {
+        if(!m_shader_cached.contains(p_type)) {
+            return nullptr;
+        }
+
+        return m_shader_cached[p_type];
     }
 
 private:
-    // Probably store this as an enum to ensure we are retrieving a valid cached shader thats been stored
-    std::map<std::string, shader> m_shader_storage;
+    std::unordered_map<shader_type, ref<shader>> m_shader_cached;
 };

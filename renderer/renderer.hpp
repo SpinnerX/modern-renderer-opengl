@@ -2,13 +2,11 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <core/vertex_array.hpp>
-#include <array>
-#include <core/test_camera.hpp>
 #include <core./texture.hpp>
-#include <core/shader.hpp>
 #include <renderer/components.hpp>
 #include <core/vertex_array.hpp>
 #include <unordered_map>
+#include <core/shader_storage.hpp>
 
 class mesh {
 public:
@@ -45,12 +43,26 @@ public:
         return m_vao.has_indices();
     }
 
-    void bind() {
-        m_vao.bind();
+    void bind_textures() {
+        // m_vao.bind();
 
         for(size_t i = 0; i < m_textures.size(); i++) {
             m_textures[i].bind(i);
         }
+    }
+
+    void unbind_textures() {
+        for(size_t i = 0; i < m_textures.size(); i++) {
+            m_textures[i].unbind();
+        }
+    }
+
+    void bind_vao() {
+        m_vao.bind();
+    }
+
+    void unbind_vao() {
+        m_vao.unbind();
     }
 
     [[nodiscard]] uint32_t size() const { return m_vao.size(); }
@@ -84,7 +96,11 @@ private:
     // vertex_array m_mesh_vao;
     std::unordered_map<uint64_t, mesh> m_cached_meshes;
 
-    shader m_geometry_shader;
-    shader m_lighting_shader;
+    shader_storage m_shader_storage;
+
+    // shader m_geometry_shader;
+    // shader m_lighting_shader;
+
+    
     // mesh m_default_mesh;
 };
