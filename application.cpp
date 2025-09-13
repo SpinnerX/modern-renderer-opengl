@@ -62,7 +62,7 @@ int main(){
             return;
         }
 
-        // p_pair->projection = glm::mat4(1.f);
+        p_pair->projection = glm::mat4(1.f);
 
         p_pair->projection =
         glm::perspective(glm::radians(p_camera.field_of_view),
@@ -70,14 +70,15 @@ int main(){
                             p_camera.plane.x,
                             p_camera.plane.y);
         // p_pair->projection[1][1] *= -1;
-        // p_pair->view = glm::mat4(1.f);
+        p_pair->view = glm::mat4(1.f);
 
         // This is converting a glm::highp_vec4 to a glm::quat
         // (quaternion)
-        glm::quat quaternion = glm::quat({ p_transform.quaternion.w,
-                                            p_transform.quaternion.x,
-                                            p_transform.quaternion.y,
-                                            p_transform.quaternion.z });
+        // glm::quat quaternion = glm::quat({ p_transform.quaternion.w,
+        //                                     p_transform.quaternion.x,
+        //                                     p_transform.quaternion.y,
+        //                                     p_transform.quaternion.z });
+        glm::quat quaternion = to_quat(p_transform.quaternion);
         p_pair->view =
         glm::translate(p_pair->view, p_transform.position) *
         glm::mat4_cast(quaternion);
@@ -87,16 +88,16 @@ int main(){
 
     // creating camera entity
 
-    // flecs::entity camera_entity = scene_registry.entity("Camera");
-    // camera_entity.add<flecs::pair<tags::editor, projection_view>>();
-    // camera_entity.set<transform>({
-    //     .position = {0.0f, 0.0f, 3.0f},
-    // });
-    // camera_entity.set<perspective_camera>({
-    //     .plane = { 0.1f, 1000.f },
-    //     .is_active = true,
-    //     .field_of_view = 45.f,
-    // });
+    flecs::entity camera_entity = scene_registry.entity("Camera");
+    camera_entity.add<flecs::pair<tags::editor, projection_view>>();
+    camera_entity.set<transform>({
+        .position = {0.0f, 0.0f, 3.0f},
+    });
+    camera_entity.set<perspective_camera>({
+        .plane = { 0.1f, 1000.f },
+        .is_active = true,
+        .field_of_view = 45.f,
+    });
 
     flecs::entity mesh_entity = scene_registry.entity("Some Mesh");
     mesh_entity.set<transform>({
@@ -108,53 +109,86 @@ int main(){
         .textures_path = {"assets/wood.png"}
     });
 
+    flecs::entity mesh_entity2 = scene_registry.entity("Some Mesh 2");
+    mesh_entity2.set<transform>({
+        .position = {0.0f, 0.5f, -6.0f},
+        .rotation = {0.0f, 0.0f, 1.0f}
+    });
+    mesh_entity2.set<mesh_renderer>({
+        .model_path = "assets/robot.obj",
+        .textures_path = {"assets/container_diffuse.png", "assets/robo-pose/textures/Texture_1K.jpg", "assets/robo-pose/textures/LP_BodyNormalsMap_1K.jpg", "assets/robo-pose/textures/specular.jpeg", "assets/robo-pose/textures/diffuse.jpeg"}
+    });
+
     renderer geometry_renderer("Renderer");
 
     // query all camera objects
     auto query_camera_objects =
           scene_registry.query_builder<flecs::pair<tags::editor, projection_view>, perspective_camera>() .build();
     
-    camera test_camera(glm::vec3(0.0f, 0.0f, 3.0f));
+    // camera test_camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
+    glm::mat4 proj_view(1.f);
     
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_ALWAYS); 
 
     while(!glfwWindowShouldClose(window)){
         auto current_time = std::chrono::high_resolution_clock::now();
         delta_time = std::chrono::duration<float, std::chrono::seconds::period>(current_time - start_time).count();
         start_time = current_time;
 
+        scene_registry.progress(delta_time);
+
         // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         geometry_renderer.background_color({0.2f, 0.3f, 0.3f, 1.0f});
 
         // game logic input events
+        transform* camera_transform = camera_entity.get_mut<transform>();
+        float movement_speed = 10.f;
+        float rotation_speed = 1.f;
+        float velocity = movement_speed * delta_time;
+        float rotation_velocity = rotation_speed * delta_time;
+        glm::quat to_quaternion = to_quat(camera_transform->quaternion);
+        glm::vec3 up = glm::rotate(to_quaternion, glm::vec3(0.f, 1.f, 0.f));
+          glm::vec3 forward =
+            glm::rotate(to_quaternion, glm::vec3(0.f, 0.f, -1.f));
+          glm::vec3 right =
+            glm::rotate(to_quaternion, glm::vec3(1.0f, 0.0f, 0.0f));
 
         if (is_key_pressed(window, key_w)) {
-            // camera_transform->position += forward * velocity;
-            test_camera.ProcessKeyboard(Camera_Movement::forward, delta_time);
+            camera_transform->position += forward * velocity;
+            // test_camera.ProcessKeyboard(Camera_Movement::forward, delta_time);
         }
         if (is_key_pressed(window, key_s)) {
             // std::println("S Presed!");
-            // camera_transform->position -= forward * velocity;
-            test_camera.ProcessKeyboard(Camera_Movement::backward, delta_time);
+            camera_transform->position -= forward * velocity;
+            // test_camera.ProcessKeyboard(Camera_Movement::backward, delta_time);
         }
 
         if (is_key_pressed(window, key_d)) {
             // std::println("D Presed!");
-            // camera_transform->position += right * velocity;
-            test_camera.ProcessKeyboard(Camera_Movement::right, delta_time);
+            camera_transform->position += right * velocity;
+            // test_camera.ProcessKeyboard(Camera_Movement::right, delta_time);
         }
         if (is_key_pressed(window, key_a)) {
             // std::println("A Presed!");
-            // camera_transform->position -= right * velocity;
-            test_camera.ProcessKeyboard(Camera_Movement::left, delta_time);
+            camera_transform->position -= right * velocity;
+            // test_camera.ProcessKeyboard(Camera_Movement::left, delta_time);
         }
 
-        glm::mat4 projection = glm::perspective(glm::radians(test_camera.Zoom), aspect_ratio, 0.1f, 100.0f);
-        glm::mat4 view = test_camera.GetViewMatrix();
+        // glm::mat4 projection = glm::perspective(glm::radians(test_camera.Zoom), aspect_ratio, 0.1f, 100.0f);
+        // glm::mat4 view = test_camera.GetViewMatrix();
+        // proj_view = projection * view;
+        query_camera_objects.each(
+              [&](flecs::entity,
+                flecs::pair<tags::editor, projection_view> p_pair,
+                perspective_camera& p_camera) {
+            if (!p_camera.is_active) {
+                return;
+            }
 
-        glm::mat4 proj_view = projection * view;
+            proj_view = p_pair->projection * p_pair->view;
+        });
 
         geometry_renderer.begin(proj_view);
         auto query_transforms = scene_registry.query_builder<transform, mesh_renderer>().build();
