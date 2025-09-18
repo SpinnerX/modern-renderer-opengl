@@ -57,15 +57,15 @@ void texture::invalidate(const std::filesystem::path& p_path, bool p_gamma_enabl
         else{
             internal_format = GL_SRGB;
             format_to_use = GL_RGB;
-            glTexImage2D(GL_TEXTURE_2D, 0, (int)internal_format, image_width, image_height, 0, format_to_use, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, (int))nternal_format, image_width, image_height, 0, format_to_use, GL_UNSIGNED_BYTE, data);
         }
         glGenerateMipmap(GL_TEXTURE_2D);
 
         // set the texture wrapping/filtering options (on the currently bound texture object)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
