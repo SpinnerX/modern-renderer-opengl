@@ -57,7 +57,7 @@ void texture::invalidate(const std::filesystem::path& p_path, bool p_gamma_enabl
         else{
             internal_format = GL_SRGB;
             format_to_use = GL_RGB;
-            glTexImage2D(GL_TEXTURE_2D, 0, (int))nternal_format, image_width, image_height, 0, format_to_use, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, (int)internal_format, image_width, image_height, 0, format_to_use, GL_UNSIGNED_BYTE, data);
         }
         glGenerateMipmap(GL_TEXTURE_2D);
 
